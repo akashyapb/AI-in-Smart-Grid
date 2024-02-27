@@ -1,0 +1,56 @@
+import numpy as np
+from sklearn.datasets import load_breast_cancer
+from sklearn.svm import LinearSVC
+
+#Setting the seed value and defining range
+seed = 210058
+rnge = np.random.default_rng(seed)
+
+#Initializing the random features of size 4
+rndm_feat = (np.floor(30 * rnge.uniform(size=4))).astype(int)
+
+#Loading the breast cancer dataset
+cancer = load_breast_cancer()
+
+#Setting the subset of features and the target
+x = cancer["data"][:, rndm_feat]
+y = cancer["target"]
+
+#Linear SVC Model instance creation and fitting the model on the data
+model = LinearSVC()
+model.fit(x,y)
+
+#Getting the feature names
+feature_names = cancer["feature_names"][rndm_feat]
+
+#Printing the seed value and the selected feature names
+print("Seed Value:", seed)
+print("Selected Features:", feature_names)
+
+#Deriving the Linear SVC value for 2 best and 2 worst combination of features
+scores = []
+for i in range(4):
+    for j in range(4):
+        
+        if i != j:
+            selected_features = [feature_names[i], feature_names[j]]
+            selected_indices = [i,j]
+            selected_x = x[:, selected_indices]
+            model.fit(selected_x,y)
+            score = model.score(selected_x,y)
+            scores.append((selected_features, score))
+
+#Sorting the scores in decending order 
+scores.sort(key=lambda x: x[1], reverse=True)
+
+#Features and the score is assigned accordinly based on the combination and the score
+best_selected_features, best_score  = scores[0]
+worst_selected_features, worst_score  = scores[len(scores)-1]    
+
+#Printing the best combination of features and its corresponding score     
+print("Best combination of features:", best_selected_features)
+print("Best - LinearSVC Score:", best_score)
+
+#Printing the worst combination of features and its corresponding score
+print("Worst combination of features:", worst_selected_features)
+print("Worst - LinearSVC Score:", worst_score)     

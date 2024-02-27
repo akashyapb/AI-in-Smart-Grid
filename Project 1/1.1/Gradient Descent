@@ -1,0 +1,46 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Reading data from the file
+data = pd.read_csv("Advertising.csv")
+
+# Setting input and output arrays
+x_arr = data["radio"].to_numpy().reshape(-1, 1)
+y_arr = data["sales"].to_numpy()
+
+# Initializing the model parameters
+learning_rate = 0.0001
+epochs = 1000
+m = 0
+c = 0
+
+# Implementing Gradient Descent
+n = float(len(x_arr))
+for i in range(epochs):
+    y_pred = m * x_arr + c
+    D_m = (-2 / n) * sum(x_arr * (y_arr - y_pred))
+    D_c = (-2 / n) * sum(y_arr - y_pred)
+    m = m - learning_rate * D_m
+    c = c - learning_rate * D_c
+
+# Predicting sales for a given budget
+budget = 23
+estimated_sales_gradient_descent = m * budget + c
+
+
+
+# Printing the necessary outputs
+print("Estimated Sales using Gradient Descent (in $ Millions):", estimated_sales_gradient_descent)
+print("Gradient Descent Model Coefficient (Slope):", m.sort())
+print("Gradient Descent Model Coefficient (Intercept):", c.sort())
+
+# Plotting a scatter plot for the given data and outputs with the best fit line
+plt.scatter(x_arr, y_arr, color='red', label='Data Points')
+plt.plot(x_arr, m * x_arr + c, color='blue', label='Best Fit Curve (Line)')
+plt.xlabel('Radio Marketing')
+plt.ylabel('Sales')
+plt.title('Gradient Descent Linear Regression curve for the Radio Marketing vs Sales')
+plt.legend()
+plt.grid()
+plt.show()

@@ -1,0 +1,59 @@
+import numpy as np
+from sklearn.datasets import load_diabetes
+from sklearn.neighbors import KNeighborsRegressor
+
+#Setting the seed value and defining range
+seed = 453672
+rnge = np.random.default_rng(seed)
+
+#Initializing the random features of size 4
+rndm_feat = np.floor(10 * rnge.uniform(size=4)).astype(int)
+
+#Loading the diabetes dataset
+diabetes = load_diabetes()
+
+#Setting the subset of features and the target
+x = diabetes["data"][:, rndm_feat]
+y = diabetes["target"]
+
+#K Neighbour Regressor Model instance creation and fitting the model on the data
+model = KNeighborsRegressor(n_neighbors=10)
+model.fit(x,y)
+
+#Getting the feature names
+feature_names = diabetes["feature_names"]
+
+#Printing the seed value and the selected feature names
+print("Seed Value:", seed)
+print("Selected Features:", feature_names)
+
+#Deriving the K Neighbour Regressor value for 2 best and 2 worst combination of features
+scores = []
+for i in range(4):
+    for j in range(4):
+        for k in range(4):
+            if i != j and i != k and j != k:
+                selected_features = [feature_names[i], feature_names[j], feature_names[k]]
+                selected_indices = [i,j,k]
+                selected_x = x[:, selected_indices]
+                model.fit(selected_x,y)
+                score = model.score(selected_x,y)
+                scores.append((selected_features, score))
+        
+#Sorting the scores in decending order 
+scores.sort(key=lambda x: x[1], reverse=True)
+
+#Features and the score is assigned accordinly based on the combination and the score
+best_selected_features, best_score  = scores[0]
+worst_selected_features, worst_score  = scores[len(scores)-1]    
+
+#Printing the number of neighbours and scores
+print("Number of Neighbors:", model.n_neighbors)
+    
+#Printing the best combination of features and its corresponding score     
+print("Best combination of features:", best_selected_features)
+print("Best - KNeighbour Regressor Score:", best_score)
+
+#Printing the worst combination of features and its corresponding score
+print("Worst combination of features:", worst_selected_features)
+print("Worst - KNeighbour Regressor Score:", worst_score)  
