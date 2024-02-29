@@ -23,7 +23,7 @@ print(len(ftr_test))
 # Performing Cross Validation
 cv_scores = cross_val_score(MLPClassifier(), ftr_train_val, trgt_train_val, cv=10)
 
-# Printing the performance of the Cross Validation
+# Printing the performance of the MLP
 print("Cross Validation Scores: \n")
 print(cv_scores)
 
@@ -39,6 +39,6 @@ mlp.fit(ftr_train_val, trgt_train_val)
 # Evaluating the MLP classifier on the test set
 test_score = mlp.score(ftr_test, trgt_test)
 
-# Printing the test score for the MLPClassifier
+# Printing the test score
 print("Test Score: \n")
 print(test_score)

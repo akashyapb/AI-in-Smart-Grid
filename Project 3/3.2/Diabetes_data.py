@@ -22,7 +22,7 @@ print(len(ftr_train_val))
 print("The number of samples in the Testing Dataset is: \n")
 print(len(ftr_test))
 
-#Creating a MultiLayer Perceptron Classifier 
+#Creating a MultiLayer Perceptron Regressor 
 mlp = MLPRegressor(hidden_layer_sizes =(50, 50), max_iter = 1000, random_state = 53)
 
 #Performing Cross Validation
