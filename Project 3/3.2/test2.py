@@ -15,12 +15,15 @@ ftr_train_val, ftr_test, trgt_train_val, trgt_test = train_test_split(ftr, trgt,
 # Further splitting the Training/Validation set into Training and Validation sets
 ftr_train, ftr_val, trgt_train, trgt_val = train_test_split(ftr_train_val, trgt_train_val, test_size = 0.1, random_state = 80)
 
-#Printing the number of samples in original dataset and split subsets
-print("The Total number of samples in the Diabetes Dataset is: \n")
+# Printing the number of samples in the original dataset and split subsets
+print("The Total number of samples in the Wisconsin Breast Cancer Dataset is: \n")
 print(len(ftr))
 
-print("The number of samples in the Training and Validation Dataset is: \n")
-print(len(ftr_train_val))
+print("The number of samples in the Training Dataset is: \n")
+print(len(ftr_train))
+
+print("The number of samples in the Validation Dataset is: \n")
+print(len(ftr_val))
 
 print("The number of samples in the Testing Dataset is: \n")
 print(len(ftr_test))

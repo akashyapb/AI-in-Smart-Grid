@@ -15,18 +15,21 @@ ftr_train_val, ftr_test, trgt_train_val, trgt_test = train_test_split(ftr, trgt,
 # Further splitting the Training/Validation set into Training and Validation sets
 ftr_train, ftr_val, trgt_train, trgt_val = train_test_split(ftr_train_val, trgt_train_val, test_size = 0.1, random_state = 80)
 
-#Printing the number of samples in original dataset and split subsets
-print("The Total number of samples in the Diabetes Dataset is: \n")
+# Printing the number of samples in the original dataset and split subsets
+print("The Total number of samples in the Wisconsin Breast Cancer Dataset is: \n")
 print(len(ftr))
 
-print("The number of samples in the Training and Validation Dataset is: \n")
-print(len(ftr_train_val))
+print("The number of samples in the Training Dataset is: \n")
+print(len(ftr_train))
+
+print("The number of samples in the Validation Dataset is: \n")
+print(len(ftr_val))
 
 print("The number of samples in the Testing Dataset is: \n")
 print(len(ftr_test))
 
 # Performing Cross Validation on the training and validation dataset
-cv_scores = cross_val_score(MLPRegressor(), ftr_train_val, trgt_train_val, cv = 4)
+cv_scores = cross_val_score(MLPRegressor(), ftr_train_val, trgt_train_val, cv = 10)
 
 # Printing the performance of the Cross Validation
 print("Cross Validation Scores: \n")
@@ -36,7 +39,7 @@ print("Average Score of Cross Validation: \n")
 print(cv_scores.mean())
 
 #Creating a MultiLayer Perceptron Regressor 
-mlp = MLPRegressor(hidden_layer_sizes =(50, 50), max_iter = 1000, random_state = 53)
+mlp = MLPRegressor(hidden_layer_sizes =(1000, 500), max_iter = 1500, random_state = 53)
 
 # Training the MLP Regressor on the training dataset
 mlp.fit(ftr_train, trgt_train)
