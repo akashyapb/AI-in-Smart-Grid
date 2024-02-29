@@ -11,7 +11,7 @@ trgt = data.target
 ftr_train_val, ftr_test, trgt_train_val, trgt_test = train_test_split(ftr, trgt, test_size=0.2, random_state=19)
 
 # Further splitting the Training/Validation set into Training and Validation sets
-ftr_train, ftr_val, trgt_train, trgt_val = train_test_split(ftr_train_val, trgt_train_val, test_size=0.5, random_state=19)
+ftr_train, ftr_val, trgt_train, trgt_val = train_test_split(ftr_train_val, trgt_train_val, test_size=0.1, random_state=19)
 
 # Printing the number of samples in the original dataset and split subsets
 print("The Total number of samples in the Wisconsin Breast Cancer Dataset is: \n")
@@ -27,7 +27,7 @@ print("The number of samples in the Testing Dataset is: \n")
 print(len(ftr_test))
 
 # Performing Cross Validation on the training and validation dataset
-cv_scores = cross_val_score(MLPClassifier(), ftr_train_val, trgt_train_val, cv=10)
+cv_scores = cross_val_score(MLPClassifier(), ftr_train_val, trgt_train_val, cv=18)
 
 # Printing the performance of the Cross Validation
 print("Cross Validation Scores: \n")
@@ -37,7 +37,7 @@ print("Average Score of Cross Validation: \n")
 print(cv_scores.mean())
 
 # Creating an MLP classifier
-mlp = MLPClassifier(hidden_layer_sizes=(100, 100), max_iter=1000, random_state=53)
+mlp = MLPClassifier(hidden_layer_sizes=(900, 500), max_iter=1000, random_state=53)
 
 # Training the MLP classifier on the training dataset
 mlp.fit(ftr_train, trgt_train)
