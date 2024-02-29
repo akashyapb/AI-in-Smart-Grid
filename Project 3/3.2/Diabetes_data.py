@@ -1,7 +1,7 @@
 from sklearn.datasets import load_diabetes
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.utils import shuffle
-from sklearn.neural_network import MLPClassifier
+from sklearn.neural_network import MLPRegressor
 
 #Loading the Dataset
 data = load_diabetes()
@@ -23,7 +23,7 @@ print("The number of samples in the Testing Dataset is: \n")
 print(len(ftr_test))
 
 #Creating a MultiLayer Perceptron Classifier 
-mlp = MLPClassifier(hidden_layer_sizes =(50, 50), max_iter = 1000, random_state = 53)
+mlp = MLPRegressor(hidden_layer_sizes =(50, 50), max_iter = 1000, random_state = 53)
 
 #Performing Cross Validation
 cv_scores = cross_val_score(mlp, ftr_train_val, trgt_train_val, cv = 4)
