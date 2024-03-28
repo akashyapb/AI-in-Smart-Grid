@@ -46,10 +46,10 @@ test_predictions = gbr.predict(ftr_test)
 mse_test = mean_squared_error(trgt_test, test_predictions)
 print("Mean Squared Error on the Test Set:", mse_test)
 
-#Listing the incorrect predications from the test set
+#Listing the top 10 incorrect predications from the test set
 incorrect = abs(test_predictions - trgt_test)
 incorrect_idx = incorrect.argsort()[::-1][:10]
-print("Examples from the test set where the predictions have been incorrect:\n")
+print("Top 10 Examples from the test set where the predictions have been incorrect:\n")
 for i in incorrect_idx:
     print("Example:", i+1)
     print("Features:", ftr_test[i])
