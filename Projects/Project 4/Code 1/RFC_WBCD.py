@@ -6,8 +6,12 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 data = load_breast_cancer()
 
+#Selecting the no. of hyperparameters 
+ftr = data.data[: , :30]
+trgt = data.target
+
 #Shuffle the dataset before the split
-ftr, trgt = shuffle(data.data, data.target, random_state = 48)
+ftr, trgt = shuffle(ftr, trgt, random_state = 48)
 
 # Split data into training/validation (80%) and test (20%) sets
 ftr_train_val, ftr_test, trgt_train_val, trgt_test = train_test_split(ftr, trgt, test_size = 0.2, random_state = 50)
@@ -42,3 +46,13 @@ print("F1 Score on the Validation set:", f1_score(trgt_val, val_predictions),"\n
 #Testing the Model on the test set
 test_predictions = rfc.predict(ftr_test)
 print("Accuracy on the Test Set:", accuracy_score(trgt_test, test_predictions))
+
+#Listing the incorrect predications from the test set
+incorrect = [i for i in range(len(ftr_test)) if test_predictions[i] != trgt_test[i]]
+print("Examples from the test set where the predictions have been incorrect:\n")
+for i in incorrect:
+    print("Example:", i+1)
+    print("Features:", ftr_test[i])
+    print("True Label:", trgt_test[i])
+    print("Predicted Label:", test_predictions[i])
+    print()
