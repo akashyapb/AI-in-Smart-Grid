@@ -7,17 +7,17 @@ from sklearn.metrics import mean_squared_error
 data = load_diabetes()
 
 #Selecting the no. of hyperparameters 
-ftr = data.data[: , :10]
+ftr = data.data[: , :9]
 trgt = data.target
 
 #Shuffle the dataset before the split
-ftr, trgt = shuffle(ftr, trgt, random_state = 88)
+ftr, trgt = shuffle(ftr, trgt, random_state = 53)
 
 # Split data into training/validation (80%) and test (20%) sets
-ftr_train_val, ftr_test, trgt_train_val, trgt_test = train_test_split(ftr, trgt, test_size = 0.2, random_state = 70)
+ftr_train_val, ftr_test, trgt_train_val, trgt_test = train_test_split(ftr, trgt, test_size = 0.2, random_state = 97)
 
 # Further split training/validation set into training and validation sets
-ftr_train, ftr_val, trgt_train, trgt_val = train_test_split(ftr_train_val, trgt_train_val, test_size = 0.5, random_state = 94)
+ftr_train, ftr_val, trgt_train, trgt_val = train_test_split(ftr_train_val, trgt_train_val, test_size = 0.6, random_state = 92)
 
 # Printing the number of samples in the original dataset and split subsets
 print("The Total number of samples in the Diabetes Dataset is: \n")
@@ -33,7 +33,7 @@ print("The number of samples in the Testing Dataset is: \n")
 print(len(ftr_test))
 
 #Creating the Random Forest Classifier Instance and training the model on the Training Data
-gbr = GradientBoostingRegressor(random_state = 19)
+gbr = GradientBoostingRegressor(random_state = 23)
 gbr.fit(ftr_train, trgt_train)
 
 #Validating and printing the model on the validation dataset

@@ -1,4 +1,4 @@
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier

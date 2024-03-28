@@ -1,4 +1,4 @@
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from sklearn.datasets import load_diabetes
 from sklearn.ensemble import RandomForestRegressor
@@ -20,7 +20,7 @@ ftr_train_val, ftr_test, trgt_train_val, trgt_test = train_test_split(ftr, trgt,
 ftr_train, ftr_val, trgt_train, trgt_val = train_test_split(ftr_train_val, trgt_train_val, test_size = 0.5, random_state = 94)
 
 # Printing the number of samples in the original dataset and split subsets
-print("The Total number of samples in the Wisconsin Breast Cancer Dataset is: \n")
+print("The Total number of samples in the Diabetes Dataset is: \n")
 print(len(ftr))
 
 print("The number of samples in the Training Dataset is: \n")
