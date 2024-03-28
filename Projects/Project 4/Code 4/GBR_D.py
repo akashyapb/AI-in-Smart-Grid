@@ -47,11 +47,13 @@ mse_test = mean_squared_error(trgt_test, test_predictions)
 print("Mean Squared Error on the Test Set:", mse_test)
 
 #Listing the incorrect predications from the test set
-incorrect = [i for i in range(len(ftr_test)) if test_predictions[i] != trgt_test[i]]
+incorrect = abs(test_predictions - trgt_test)
+incorrect_idx = incorrect.argsort()[::-1][:10]
 print("Examples from the test set where the predictions have been incorrect:\n")
-for i in incorrect:
+for i in incorrect_idx:
     print("Example:", i+1)
     print("Features:", ftr_test[i])
     print("True Label:", trgt_test[i])
     print("Predicted Label:", test_predictions[i])
+    print("Prediction Error:", incorrect[i])
     print()
