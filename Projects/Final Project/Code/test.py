@@ -1,10 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Logic of the function
-def x_calc(x, y, z):
-    return (y - x) / (z - y)
-
 # Initialize values for x, y, and z from the dataset
 temp_data = pd.read_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/Masters(USA)/IIT/Spring 2024 Semester/ECE563 (AI for Smart Grid)/AI-in-Smart-Grid/Projects/Final Project/temp_month1.csv", nrows = 1)
 load_data = pd.read_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/Masters(USA)/IIT/Spring 2024 Semester/ECE563 (AI for Smart Grid)/AI-in-Smart-Grid/Projects/Final Project/load_month1.csv", nrows = 1)
@@ -13,7 +9,7 @@ load_data = pd.read_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/M
 temp_row_data = temp_data.iloc[0]
 load_row_data = load_data.iloc[0]
 
-# Initialize x, y, and z with h1, h2, and h3 values respectively
+# Initialize tx, ty, and tz along with lx, ly, and lz values respectively
 tx = temp_row_data['h1']
 ty = temp_row_data['h2']
 tz = temp_row_data['h3']
