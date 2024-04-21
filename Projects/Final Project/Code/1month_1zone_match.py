@@ -12,25 +12,12 @@ temp_data_filtered = temp_data[(temp_data['station_id'] == 1)]
 #Merge filtered data from the two documents for the date filtering
 merged_data = pd.merge(load_data_filtered, temp_data_filtered, on = ['day', 'month', 'year'])
 
-print(load_data_filtered.head())
-print(temp_data_filtered.head())
-print(merged_data.head())
-
-# Initialize tx, ty, and tz along with lx, ly, and lz values respectively
-#tx = merged_data['h1']
-#ty = merged_data['h2']
-#tz = merged_data['h3']
-
-#lx = merged_data['h1']
-#ly = merged_data['h2']
-#lz = merged_data['h3']
-
 #Lists to store differences
-#load_diff = []
-#temp_diff = []
+load_diff = []
+temp_diff = []
 ratios = []
 
-# Temperature and Load Calculation iteration
+# Iterate over each row in the merged data
 for _, row in merged_data.iterrows():
         #Initialize tx, ty, and tz along with lx, ly, and lz values respectively
         #load_diff.append(merged_data[f'h{i+1}'] - merged_data[f'h{i}'])
@@ -42,10 +29,6 @@ for _, row in merged_data.iterrows():
         lx = row['h1_y']
         ly = row['h2_y']
         lz = row['h3_y']
-
-#Lists to store differences
-load_diff = []
-temp_diff = []
         
 #Temperature and Load Calculation Iteration
 for i in range(1, 25):
@@ -53,15 +36,10 @@ for i in range(1, 25):
         #Calculate load and temperature differences
         load_diff.append(row[f'h{i+1}_x'] - row[f'h{i}_x'])
         temp_diff.append(row[f'h{i+1}_y'] - row[f'h{i}_y'])
-        
-        # Update x, y, and z based on the next set of h values
-        tx = ty
-        ty = tz
-        tz = row[f'h{i+3}_y']
-        
-        lx = ly
-        ly = lz
-        lz = row[f'h{i+3}_x']
+
+        # Update x, y, and z based on the next set of h values  
+        tx, ty, tz = ty, tz, row[f'h{i+3}_y']
+        lx, ly, lz = ly, lz, row[f'h{i+3}_x']
 
     except KeyError:
         break
@@ -72,19 +50,15 @@ match_ratio = [temp_diff[i] / load_diff[i] if load_diff[i] != 0 else 0 for i in 
 #Append the match ratios to the list of ratios
 ratios.append(match_ratio)
 
-#Calculating the average ratio for each match
-average_ratios = [sum(match_ratio) / len(match_ratio) for match_ratio in ratios]
-
-#Calculating the overall average ratio
-overall_average_ratio = sum(average_ratios) / len(average_ratios)
+#Calculating the overall average ratio for each element across all rows
+overall_average_ratios = [sum(match_ratio[i] for match_ratio in ratios) / len(ratios) for i in range(len(match_ratio))]
 
 #Printing the overall average ratio
-print("Overall Average Ratio:", overall_average_ratio)
+print("Overall Average Ratio:", overall_average_ratios)
 
 #Printing the Load and Temperature differences along with Ratio
 print("Load Differences:", load_diff)
 print("Temperature Differences:", temp_diff)
-#print("Ratio:", ratio)
 
 #Array to store positive and negative values
 positive_values = []
@@ -98,10 +72,14 @@ for match_ratio in ratios:
         elif val < 0:
             negative_values.append((i+1, val))
         
+#Calculate the total number of positive and negative values
+total_positive = sum(len([val for val in match_ratio if val > 0]) for match_ratio in ratios)
+total_negative = sum(len([val for val in match_ratio if val > 0]) for match_ratio in ratios)
+
 #Calculating percentages
 if len(ratios) > 0:
-    positive_percentage = len(positive_values) / len (ratios) * 100
-    negative_percentage = len(negative_values) / len (ratios) * 100
+    positive_percentage = (total_positive / (total_positive + total_negative)) * 100
+    negative_percentage = (total_negative / (total_positive + total_negative)) * 100
 else:
     positive_percentage = 0
     negative_percentage = 0    
@@ -123,7 +101,7 @@ plt.legend()
 plt.show()
 
 #Plotting the Ratio
-plt.plot(overall_average_ratio, label = 'Ratio')
+plt.plot(overall_average_ratios, label = 'Ratio')
 plt.xlabel('Iteration')
 plt.ylabel('Ratio')
 plt.title('Ratio of Temperature Differences to Load Differences')
