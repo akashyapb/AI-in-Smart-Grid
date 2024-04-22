@@ -5,97 +5,112 @@ import matplotlib.pyplot as plt
 temp_data = pd.read_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/Masters(USA)/IIT/Spring 2024 Semester/ECE563 (AI for Smart Grid)/AI-in-Smart-Grid/Projects/Final Project/Temp_history_final.csv")
 load_data = pd.read_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/Masters(USA)/IIT/Spring 2024 Semester/ECE563 (AI for Smart Grid)/AI-in-Smart-Grid/Projects/Final Project/Load_history_final.csv")
 
-# Filtering row absed on zone_id and station_id
-load_data_filtered = load_data[(load_data['zone_id'] == 1)]
-temp_data_filtered = temp_data[(temp_data['station_id'] == 1)]
-
 #Merge filtered data from the two documents for the date filtering
-merged_data = pd.merge(load_data_filtered, temp_data_filtered, on = ['day', 'month', 'year'])
+merged_data = pd.merge(load_data, temp_data, on = ['day', 'month', 'year'])
 
-#Lists to store differences
+#Initialize a list to store the percentages for each zone_id and station_id combination
+percentages = []
+
+#Iterate over unique zone_id and station_id combinations:
+for zone_id in merged_data['zone_id'].unique():
+    for station_id in merged_data['station_id'].unique():
+        filtered_data = merged_data[(merged_data['zone_id'] == zone_id) & (merged_data['station_id'] == station_id)]
+#load_data_filtered = load_data[(load_data['zone_id'] == 1)]
+#temp_data_filtered = temp_data[(temp_data['station_id'] == 1)]
+
+#List to store differences
 load_diff = []
 temp_diff = []
+
+#Iterate of each row in the merged data
+for _, row in merged_data.iterrows():
+    #Initilizing tx, ty, tz along with lz, ly and lz values respectively
+    tx = row['h1_x']
+    ty = row['h2_x']
+    tz = row['h3_x']
+    
+    lx = row['h1_y']
+    ly = row['h2_y']
+    lz = row['h3_y']
+    
+    #Lists to store the differences of each current row
+    row_load_diff = []
+    row_temp_diff = []
+    
+    #Temperature and Load Calculation Iteration
+    for i in range(1, 25):
+        try:
+            #Calculate load and temperature differences
+            row_load_diff.append(row[f'h{i+1}_x'] - row[f'h{i}_x'])
+            row_temp_diff.append(row[f'h{i+1}_y'] - row[f'h{i}_y'])
+            
+            #Update x, y and z based on the next set of h values
+            tx, ty, tz = ty, tz, row[f'h{i+3}_y']
+            lx, ly, lz = ly, lz, row[f'h{i+3}_x']
+        
+        except KeyError:
+            break
+    
+    #Append the load and temperature differences for the current row to the overall lists
+    load_diff.append(row_load_diff)
+    temp_diff.append(row_temp_diff)
+
+#Calculate the overall average of temp differences
+overall_average_temp_diff = [sum(temp_diff[i] for temp_diff in temp_diff) / len(temp_diff) for i in range(len(temp_diff[0]))]
+
+#Calculate the overall average of load differences
+overall_average_load_diff = [sum(load_diff[i] for load_diff in load_diff) / len(load_diff) for i in range(len(load_diff[0]))]
+    
+#List to store ratios for each row
 ratios = []
 
-# Iterate over each row in the merged data
-for _, row in merged_data.iterrows():
-        #Initialize tx, ty, and tz along with lx, ly, and lz values respectively
-        tx = row['h1_x']
-        ty = row['h2_x']
-        tz = row['h3_x']
-        
-        lx = row['h1_y']
-        ly = row['h2_y']
-        lz = row['h3_y']
-
-#Lists to store differences
-row_load_diff = []
-row_temp_diff = []
-        
-#Temperature and Load Calculation Iteration
-for i in range(1, 25):
-    try:
-        #Calculate load and temperature differences
-        row_load_diff.append(row[f'h{i+1}_x'] - row[f'h{i}_x'])
-        row_temp_diff.append(row[f'h{i+1}_y'] - row[f'h{i}_y'])
-
-        # Update x, y, and z based on the next set of h values  
-        tx, ty, tz = ty, tz, row[f'h{i+3}_y']
-        lx, ly, lz = ly, lz, row[f'h{i+3}_x']
-
-    except KeyError:
-        break
-#Append the load and temperature differences for the current row to the overall lists
-load_diff.append(row_load_diff)
-temp_diff.append(row_temp_diff)
-
-#Calculate the ratio for the current match
-match_ratio = []
+#Calculate the ratio for each row
 for i in range(len(load_diff)):
     row_match_ratio = [temp_diff[i][j] / load_diff[i][j] if load_diff[i][j] != 0 else 0 for j in range(len(load_diff[i]))]
-    #match_ratio.append(temp_diff[i] / load_diff[i])
-    #match_ratio = [temp_diff[i] / load_diff[i] if load_diff[i] != 0 else 0 for i in range(len(load_diff))]
-    match_ratio.append(row_match_ratio)
-    
-#Append the match ratios to the list of ratios
-ratios.extend(match_ratio)
+    ratios.append(row_match_ratio)    
+        
+#Calculate the overall average ratio for each element
+overall_average_ratios = [sum(match_ratio[i] for match_ratio in ratios) / len(ratios) for i in range(len(ratios[0]))]
 
-#Calculating the overall average ratio for each element across all rows
-overall_average_ratios = [sum(match_ratio[i] for match_ratio in ratios) / len(ratios) for i in range(len(match_ratio[0]))]
+#Printing the Overall Average Ratio
+print("Overall Average Ratios:")
+print(overall_average_ratios)
 
-#Printing the overall average ratio
-print("Overall Average Ratio:", overall_average_ratios)
-
-#Printing the Load and Temperature differences along with Ratio
-print("Load Differences:", load_diff)
-print("Temperature Differences:", temp_diff)
-
-#Array to store positive and negative values
+#Lists to store positive and negative values
 positive_values = []
 negative_values = []
 
 #Finding and storing positive and negative values and their corresponding iteration count
-for match_ratio in ratios:
-    for i, val in enumerate(match_ratio):
+for i, match_ratio in enumerate(ratios, start = 1):
+    for j, val in enumerate(match_ratio, start = 1):
         if val > 0:
-            positive_values.append((i+1, val))
+            positive_values.append((i, j, val))
         elif val < 0:
-            negative_values.append((i+1, val))
-        
-#Calculate the total number of positive and negative values
-total_positive = sum(len([val for val in match_ratio if val > 0]) for match_ratio in ratios)
-total_negative = sum(len([val for val in match_ratio if val > 0]) for match_ratio in ratios)
-
+            negative_values.append((i, j, val))
+            
 #Calculating percentages
-if total_positive + total_negative > 0:
-    positive_percentage = (total_positive / (total_positive + total_negative)) * 100
-    negative_percentage = (total_negative / (total_positive + total_negative)) * 100
+total_positives = len(positive_values)
+total_negatives = len(negative_values)
+
+if total_positives + total_negatives > 0:
+    positive_percentage = (total_positives / (total_positives + total_negatives)) * 100
+    negative_percentage = (total_negatives / (total_positives + total_negatives)) * 100
 else:
     positive_percentage = 0
-    negative_percentage = 0    
+    negative_percentage = 0                   
+
+#Append the percentages to the list
+percentages.append({'Zone_id': zone_id, 'Station_id': station_id, 'Positive Percentages': positive_percentage, 'Negative Percentages': negative_percentage})
+#Printing the Positive percentages and Negative percentages
+for percentage in percentages:
+    print(f"Zone ID: {zone_id}, Station ID: {station_id}, Positive Percentages: {positive_percentage}, Negative Percentages: {negative_percentage}")
+#print("Positive Percentage:")
+#print(positive_percentage)
+#print("Negative Percentage:")
+#print(negative_percentage)
     
 #Plotting the load and temperature differences
-plt.plot(load_diff, label = 'Load Differences')
+plt.plot(overall_average_load_diff, label = 'Overall Average Load Differences')
 plt.xlabel("Iteration")
 plt.ylabel("Difference")
 plt.title("Load Differences")
@@ -103,7 +118,7 @@ plt.legend()
 plt.show()
 
 #Plotting the Temperature Differences
-plt.plot(temp_diff, label = 'Temperature Differences')
+plt.plot(overall_average_temp_diff, label = 'Overall Average Temperature Differences')
 plt.xlabel("Iteration")
 plt.ylabel("Difference")
 plt.title("Temperature Differences")
@@ -116,17 +131,4 @@ plt.xlabel('Iteration')
 plt.ylabel('Ratio')
 plt.title('Ratio of Temperature Differences to Load Differences')
 plt.legend()
-plt.show()
-
-#Printing the positive and negative values
-print("Positive Differences:")
-for i, val in positive_values:
-    print("Iteration:", i, "Value:", val)
-
-print("Negative Differences:")
-for i, val in negative_values:
-    print("Iteration:", i, "Value:", val)
-    
-#Printing the percentages
-print("Percentage of Positive Values:", positive_percentage)
-print("Percentage of Negative Values:", negative_percentage)
+plt.show()    
