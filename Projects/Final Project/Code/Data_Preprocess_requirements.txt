@@ -1,0 +1,8 @@
+1. I want the code to find the differences for each row with consecutive elements that is, I have columns h1 to h24. I want h2-h1, h3-h2 and so on until h24-h23 for that matched day, month and year with matched zone_id and station_id. This will give me two sets of arrays, one for each load and temp. 
+2. Now, match zone_id = 1 and station_id = 1 from both the files Load_history_final.csv and Temp_history_final.csv respectively for the same particular day, month and year from that respective columns.
+3. The next step, I want the code to calculate the ratio individual to that particular row of load array to that of temp array of that particular row with numerator value as temp and denominator value as load matched with the criteria stated in pointers 1 and 2.  
+4. The step 3 will give me exactly half the number of iterations as that of load and temp iterations combined, right?
+5. The next step is to find the overall average ratio of the ratios, that is, each corresponding and particular indexed element from the arrays to be taken into consideration. So, the overall average array's length is same as the length of each iterative ratio arrays.
+6. The next step is to copy all the positive elements from the overall average array into an another array called positives and similarly, copy all negative elements from the overall average array into another called negatives.
+7. The percentages of positives and negatives is calculated over the overall average array.
+8. Graphs are plotted for the average of overall load differences, overall temp differences and overall average ratio.

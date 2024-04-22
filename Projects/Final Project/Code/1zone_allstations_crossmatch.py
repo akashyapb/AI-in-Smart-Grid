@@ -2,8 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Initialize values for x, y, and z from the dataset
-temp_data = pd.read_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/Masters(USA)/IIT/Spring 2024 Semester/ECE563 (AI for Smart Grid)/AI-in-Smart-Grid/Projects/Final Project/temp_month1.csv")
-load_data = pd.read_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/Masters(USA)/IIT/Spring 2024 Semester/ECE563 (AI for Smart Grid)/AI-in-Smart-Grid/Projects/Final Project/load_month1.csv")
+temp_data = pd.read_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/Masters(USA)/IIT/Spring 2024 Semester/ECE563 (AI for Smart Grid)/AI-in-Smart-Grid/Projects/Final Project/Temp_history_final.csv")
+load_data = pd.read_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/Masters(USA)/IIT/Spring 2024 Semester/ECE563 (AI for Smart Grid)/AI-in-Smart-Grid/Projects/Final Project/Load_history_final.csv")
 
 # Filtering row absed on zone_id and station_id
 load_data_filtered = load_data[(load_data['zone_id'] == 1)]
@@ -27,13 +27,17 @@ for _, row in merged_data.iterrows():
         lx = row['h1_y']
         ly = row['h2_y']
         lz = row['h3_y']
+
+#Lists to store differences
+row_load_diff = []
+row_temp_diff = []
         
 #Temperature and Load Calculation Iteration
 for i in range(1, 25):
     try:
         #Calculate load and temperature differences
-        load_diff.append(row[f'h{i+1}_x'] - row[f'h{i}_x'])
-        temp_diff.append(row[f'h{i+1}_y'] - row[f'h{i}_y'])
+        row_load_diff.append(row[f'h{i+1}_x'] - row[f'h{i}_x'])
+        row_temp_diff.append(row[f'h{i+1}_y'] - row[f'h{i}_y'])
 
         # Update x, y, and z based on the next set of h values  
         tx, ty, tz = ty, tz, row[f'h{i+3}_y']
@@ -41,15 +45,23 @@ for i in range(1, 25):
 
     except KeyError:
         break
+#Append the load and temperature differences for the current row to the overall lists
+load_diff.append(row_load_diff)
+temp_diff.append(row_temp_diff)
 
 #Calculate the ratio for the current match
-match_ratio = [temp_diff[i] / load_diff[i] if load_diff[i] != 0 else 0 for i in range(len(load_diff))]
-
+match_ratio = []
+for i in range(len(load_diff)):
+    row_match_ratio = [temp_diff[i][j] / load_diff[i][j] if load_diff[i][j] != 0 else 0 for j in range(len(load_diff[i]))]
+    #match_ratio.append(temp_diff[i] / load_diff[i])
+    #match_ratio = [temp_diff[i] / load_diff[i] if load_diff[i] != 0 else 0 for i in range(len(load_diff))]
+    match_ratio.append(row_match_ratio)
+    
 #Append the match ratios to the list of ratios
-ratios.append(match_ratio)
+ratios.extend(match_ratio)
 
 #Calculating the overall average ratio for each element across all rows
-overall_average_ratios = [sum(match_ratio[i] for match_ratio in ratios) / len(ratios) for i in range(len(match_ratio))]
+overall_average_ratios = [sum(match_ratio[i] for match_ratio in ratios) / len(ratios) for i in range(len(match_ratio[0]))]
 
 #Printing the overall average ratio
 print("Overall Average Ratio:", overall_average_ratios)
@@ -75,7 +87,7 @@ total_positive = sum(len([val for val in match_ratio if val > 0]) for match_rati
 total_negative = sum(len([val for val in match_ratio if val > 0]) for match_ratio in ratios)
 
 #Calculating percentages
-if len(ratios) > 0:
+if total_positive + total_negative > 0:
     positive_percentage = (total_positive / (total_positive + total_negative)) * 100
     negative_percentage = (total_negative / (total_positive + total_negative)) * 100
 else:
