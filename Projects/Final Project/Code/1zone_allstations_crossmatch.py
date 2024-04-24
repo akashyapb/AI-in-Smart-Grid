@@ -9,33 +9,33 @@ load_data = pd.read_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/M
 merged_data = pd.merge(load_data, temp_data, on = ['day', 'month', 'year'])
 
 #Initialize a list to store the percentages for each zone_id and station_id combination
-percentages = []
+#percentages = []
 
 #Iterate over unique zone_id and station_id combinations:
 for zone_id in merged_data['zone_id'].unique():
     for station_id in merged_data['station_id'].unique():
         filtered_data = merged_data[(merged_data['zone_id'] == zone_id) & (merged_data['station_id'] == station_id)]
-#load_data_filtered = load_data[(load_data['zone_id'] == 1)]
-#temp_data_filtered = temp_data[(temp_data['station_id'] == 1)]
 
 #List to store differences
 load_diff = []
 temp_diff = []
+ratios = []
 
 #Iterate of each row in the merged data
-for _, row in merged_data.iterrows():
-    #Initilizing tx, ty, tz along with lz, ly and lz values respectively
+for _, row in filtered_data.iterrows():
+    #Initilizing tx and ty along with lz and ly values respectively
     tx = row['h1_x']
     ty = row['h2_x']
-    tz = row['h3_x']
     
     lx = row['h1_y']
     ly = row['h2_y']
-    lz = row['h3_y']
     
     #Lists to store the differences of each current row
     row_load_diff = []
     row_temp_diff = []
+    
+    #List to store ratios for each row
+    #ratios = []
     
     #Temperature and Load Calculation Iteration
     for i in range(1, 25):
@@ -44,33 +44,34 @@ for _, row in merged_data.iterrows():
             row_load_diff.append(row[f'h{i+1}_x'] - row[f'h{i}_x'])
             row_temp_diff.append(row[f'h{i+1}_y'] - row[f'h{i}_y'])
             
-            #Update x, y and z based on the next set of h values
-            tx, ty, tz = ty, tz, row[f'h{i+3}_y']
-            lx, ly, lz = ly, lz, row[f'h{i+3}_x']
-        
+            #Update x and y based on the next set of h values
+            tx, ty = ty, row[f'h{i+2}_y']
+            lx, ly = ly, row[f'h{i+2}_x']
+
+            #Append the load and temperature differences for the current row to the overall lists
+            load_diff.append(row_load_diff)
+            temp_diff.append(row_temp_diff)
+            
+            #Calculate the ratio for the current row
+            row_match_ratio = [row_temp_diff[j] / row_load_diff[j] if row_load_diff[j] != 0 else 0 for j in range(len(row_load_diff))]
+            ratios.append(row_match_ratio)
+            
         except KeyError:
             break
-    
-    #Append the load and temperature differences for the current row to the overall lists
-    load_diff.append(row_load_diff)
-    temp_diff.append(row_temp_diff)
 
-#Calculate the overall average of temp differences
-overall_average_temp_diff = [sum(temp_diff[i] for temp_diff in temp_diff) / len(temp_diff) for i in range(len(temp_diff[0]))]
+#Calculate the overall average of temp differences for current combination
+overall_average_temp_diff = [sum(temp_diff[j] for temp_diff in temp_diff) / len(temp_diff) for j in range(len(temp_diff[0]))]
 
-#Calculate the overall average of load differences
-overall_average_load_diff = [sum(load_diff[i] for load_diff in load_diff) / len(load_diff) for i in range(len(load_diff[0]))]
-    
-#List to store ratios for each row
-ratios = []
+#Calculate the overall average of load differences for current combination
+overall_average_load_diff = [sum(load_diff[j] for load_diff in load_diff) / len(load_diff) for j in range(len(load_diff[0]))]
 
 #Calculate the ratio for each row
-for i in range(len(load_diff)):
-    row_match_ratio = [temp_diff[i][j] / load_diff[i][j] if load_diff[i][j] != 0 else 0 for j in range(len(load_diff[i]))]
-    ratios.append(row_match_ratio)    
+#for i in range(len(load_diff)):
+#    row_match_ratio = [temp_diff[i][j] / load_diff[i][j] if load_diff[i][j] != 0 else 0 for j in range(len(load_diff[i]))]
+#    ratios.append(row_match_ratio)    
         
 #Calculate the overall average ratio for each element
-overall_average_ratios = [sum(match_ratio[i] for match_ratio in ratios) / len(ratios) for i in range(len(ratios[0]))]
+overall_average_ratios = [sum(ratios[j] for ratios in ratios) / len(ratios) for j in range(len(ratios[0]))]
 
 #Printing the Overall Average Ratio
 print("Overall Average Ratios:")
@@ -99,18 +100,16 @@ else:
     positive_percentage = 0
     negative_percentage = 0                   
 
+# Printing the results for the current combination
+print(f"Zone ID: {zone_id}, Station ID: {station_id}, Positive Percentage: {positive_percentage}, Negative Percentage: {negative_percentage}")
 #Append the percentages to the list
-percentages.append({'Zone_id': zone_id, 'Station_id': station_id, 'Positive Percentages': positive_percentage, 'Negative Percentages': negative_percentage})
+#percentages.append({'Zone_id': zone_id, 'Station_id': station_id, 'Positive Percentages': positive_percentage, 'Negative Percentages': negative_percentage})
 #Printing the Positive percentages and Negative percentages
-for percentage in percentages:
-    print(f"Zone ID: {zone_id}, Station ID: {station_id}, Positive Percentages: {positive_percentage}, Negative Percentages: {negative_percentage}")
-#print("Positive Percentage:")
-#print(positive_percentage)
-#print("Negative Percentage:")
-#print(negative_percentage)
+#for percentage in percentages:
+#    print(f"Zone ID: {zone_id}, Station ID: {station_id}, Positive Percentages: {positive_percentage}, Negative Percentages: {negative_percentage}")
     
 #Plotting the load and temperature differences
-plt.plot(overall_average_load_diff, label = 'Overall Average Load Differences')
+plt.plot(overall_average_load_diff, label = f'Zone {zone_id}, Station {station_id} - Load Differences')
 plt.xlabel("Iteration")
 plt.ylabel("Difference")
 plt.title("Load Differences")
@@ -118,7 +117,7 @@ plt.legend()
 plt.show()
 
 #Plotting the Temperature Differences
-plt.plot(overall_average_temp_diff, label = 'Overall Average Temperature Differences')
+plt.plot(overall_average_temp_diff, label = f'Zone {zone_id}, Station {station_id} - Temperature Differences')
 plt.xlabel("Iteration")
 plt.ylabel("Difference")
 plt.title("Temperature Differences")
