@@ -6,3 +6,13 @@
 6. The next step is to copy all the positive elements from the overall average array into an another array called positives and similarly, copy all negative elements from the overall average array into another called negatives.
 7. The percentages of positives and negatives is calculated over the overall average array.
 8. Graphs are plotted for the average of overall load differences, overall temp differences and overall average ratio.
+
+Updated:
+1. I have two files whose data needs to be extracted. First file is Load_history_final.csv and has the columns zone_id, year, month, day, h1, h2, h3...h24 and the second file is  Temp_history_final.csv which has the columns station_id, year, month, day, h1, h2, h3...h24.
+2. I want to find out how these two files fare against each other for each combination of zone_id to each combination of station_id. Since I know that there are 20 zones and 11 stations. I should have 220 combinations in total.
+3. To do this, I need to look at the data from the same day, month and year from both these files. 
+4. Then, The data present under h1 to h24 is considered. Here, based on an iterative process, we calculate h2-h1, then h3-h2 until h24-h23. This is calculated for each file.
+5. Upon matching the day, month and year and for that combination of zone_id and station_id, every h2-h1,h3-h2...h24-h23 of Temp_history_final.csv is divided by the h2-h1,h3-h2...h24-h23 of Load_history_final.csv and stored in a day wise array.
+6. All the particular index values of these day wise arrays for that combination of zone_id and station_id is averaged and the final averge array if stored for that combination of zone_id and station_id. Thus, we should have 220 final average arrays.
+7. Here after, the positive values from each combination of the final average arrays is stored in another positive array for that combination and similarly, the negative values are stored in each combination's negative array. Thus we now will have 220 postive arrays and 220 negative arrays along with the original 220 final average arrays.
+8. In the end, I need a percentage of positive based on the positive array and the final averge array and percentage of negative based on the negative array and the final average array for each combination. Thus I should have a set of 220 positive and 220 negative percentages. 
