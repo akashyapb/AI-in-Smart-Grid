@@ -3,6 +3,10 @@ import numpy as np
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import mean_squared_error
+import warnings
+
+# Suppress warnings
+warnings.filterwarnings("ignore")
 
 # Step 1: Data Loading
 load_data = pd.read_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/Masters(USA)/IIT/Spring 2024 Semester/ECE563 (AI for Smart Grid)/AI-in-Smart-Grid/Projects/Final Project/Load_history_final.csv")
@@ -17,10 +21,6 @@ temp_data.replace(0, np.nan, inplace=True)
 # Remove rows with NaN values
 load_data.dropna(inplace=True)
 temp_data.dropna(inplace=True)
-
-# Display the shape of the datasets after preprocessing
-print("Shape of load_data after preprocessing:", load_data.shape)
-print("Shape of temp_data after preprocessing:", temp_data.shape)
 
 # Step 3: Data Correlation
 # Extract unique zone IDs and corresponding best station IDs from combined_results
