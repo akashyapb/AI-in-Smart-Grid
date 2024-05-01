@@ -4,6 +4,10 @@ from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 import warnings
+import time
+
+#Measure overall execution time
+start_time = time.perf_counter()
 
 # Suppress warnings
 warnings.filterwarnings("ignore")
@@ -31,14 +35,6 @@ zone_to_station = combined_results.drop_duplicates(subset=['Zone ID'])[['Zone ID
 merged_data = pd.merge(load_data, zone_to_station, left_on='zone_id', right_on='Zone ID', how='inner')
 merged_data.drop(columns=['Zone ID'], inplace=True)  # Drop redundant column
 
-# Step 1: Check Merged Data
-print("Sample of merged_data:")
-print(merged_data.head())
-
-# Step 2: Compare with combined_results.csv
-print("\nMapping between zone_id and Best Station ID according to combined_results.csv:")
-print(zone_to_station.head())
-
 # Step 3: Sample Validation
 # Choose a few random samples from merged_data and cross-check with combined_results.csv
 # For example, select 5 random rows and validate the mapping
@@ -61,7 +57,7 @@ for index, row in sample_rows.iterrows():
         
     best_station_id = zone_to_station[zone_to_station['Zone ID'] == zone_id]['Best Station ID'].values[0]
     print(f"Zone ID: {zone_id}, Station ID: {station_id}, Best Station ID: {best_station_id}")
-    print()
+print()
 
 # Step 5: Train-Test Split
 X = merged_data.drop(columns=['zone_id', 'year', 'month', 'day', 'Best Station ID'])
@@ -81,4 +77,10 @@ print("Mean Cross-Validation Score:", mean_cv_score)
 y_pred = model.predict(X_test)
 overall_deviation = mean_squared_error(y_test, y_pred)
 print("Overall Deviation:", overall_deviation)
+print()
+
+#Measure the overall execution time
+end_time = time.perf_counter()
+execution_time = end_time - start_time
+print(f"Overall Execution Time: {execution_time:0.4f} seconds")
 print()
