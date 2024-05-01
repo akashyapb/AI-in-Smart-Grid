@@ -1,8 +1,17 @@
 import pandas as pd
+import numpy as np
+import warnings
 
-# Step 1: Read Data
+# Suppress all warnings
+warnings.filterwarnings("ignore")
+
+# Step 1: Read Data and Clean
 load_data = pd.read_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/Masters(USA)/IIT/Spring 2024 Semester/ECE563 (AI for Smart Grid)/AI-in-Smart-Grid/Projects/Final Project/Load_history_final.csv")
 temp_data = pd.read_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/Masters(USA)/IIT/Spring 2024 Semester/ECE563 (AI for Smart Grid)/AI-in-Smart-Grid/Projects/Final Project/Temp_history_final.csv")
+
+# Replace 0 values with NaN
+load_data.replace(0, np.nan, inplace=True)
+temp_data.replace(0, np.nan, inplace=True)
 
 # Step 2: Iterate Over Combinations
 for zone_id in load_data['zone_id'].unique():
@@ -15,44 +24,38 @@ for zone_id in load_data['zone_id'].unique():
         if merged_data.empty:
             continue
         
-        print(f"Processing Zone ID: {zone_id}, Station ID: {station_id}")
-        
-        # Step 4: Calculate Ratios and Percentages
-        valid_ratios = []
+        # Step 4: Calculate Differences and Ratios
         for i in range(1, 25):
             load_col = f'h{i}_x'
             temp_col = f'h{i}_y'
+            diff_load_col = f'diff_load_{i}'
+            diff_temp_col = f'diff_temp_{i}'
+            ratio_col = f'ratio_{i}'
             
-            # Check for zero values in raw data before calculating differences
-            if (merged_data[load_col] == 0).any() or (merged_data[temp_col] == 0).any():
-                print(f"Zero values found in raw data for hour {i}, skipping...")
-                continue
+            # Calculate differences, considering NaN values
+            merged_data[diff_load_col] = merged_data[load_col] - merged_data[load_col].shift(1)
+            merged_data[diff_temp_col] = merged_data[temp_col] - merged_data[temp_col].shift(1)
             
-            diff_load = merged_data[load_col] - merged_data[load_col].shift(1)
-            diff_temp = merged_data[temp_col] - merged_data[temp_col].shift(1)
+            # Replace NaN differences with 0
+            merged_data.loc[merged_data[diff_load_col].isnull(), diff_load_col] = 0
+            merged_data.loc[merged_data[diff_temp_col].isnull(), diff_temp_col] = 0
             
-            # Check for zero values in differences for this hour
-            if diff_load.iloc[i-1] == 0 or diff_temp.iloc[i-1] == 0:
-                print(f"Zero value found in differences for hour {i}, skipping...")
-                continue
-            
-            ratio = diff_temp / diff_load
-            valid_ratios.extend(ratio)
+            # Calculate ratio
+            merged_data[ratio_col] = merged_data[diff_temp_col] / merged_data[diff_load_col]
         
-        # Step 5: Calculate Percentages
-        if not valid_ratios:
-            print("No valid ratios without zero values, setting percentages to 0...")
-            positive_percentage = 0
-            negative_percentage = 0
-        else:
-            positive_ratio_count = sum(ratio > 0 for ratio in valid_ratios)
-            negative_ratio_count = sum(ratio < 0 for ratio in valid_ratios)
-            total_valid_ratios = len(valid_ratios)
-            
-            positive_percentage = (positive_ratio_count / total_valid_ratios) * 100
-            negative_percentage = (negative_ratio_count / total_valid_ratios) * 100
+        # Step 5: Aggregate Ratios
+        merged_data['average_ratio'] = merged_data[[f'ratio_{i}' for i in range(1, 25)]].mean(axis=1, skipna=True)
         
-        # Step 6: Display Results
+        # Step 6: Separate Positive and Negative Ratios
+        positive_ratios = merged_data[merged_data['average_ratio'] > 0]['average_ratio'].tolist()
+        negative_ratios = merged_data[merged_data['average_ratio'] < 0]['average_ratio'].tolist()
+        
+        # Step 7: Calculate Percentages
+        total_count = len(merged_data)
+        positive_percentage = (len(positive_ratios) / total_count) * 100
+        negative_percentage = (len(negative_ratios) / total_count) * 100
+        
+        # Step 8: Display Results
         print(f"Zone ID: {zone_id}, Station ID: {station_id}")
         print(f"Positive Percentage: {positive_percentage:.2f}%")
         print(f"Negative Percentage: {negative_percentage:.2f}%")
