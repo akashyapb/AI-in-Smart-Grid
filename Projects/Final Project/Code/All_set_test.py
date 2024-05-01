@@ -13,6 +13,9 @@ temp_data = pd.read_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/M
 load_data.replace(0, np.nan, inplace=True)
 temp_data.replace(0, np.nan, inplace=True)
 
+# Initialize list to store results
+results = []
+
 # Step 2: Iterate Over Combinations
 for zone_id in load_data['zone_id'].unique():
     for station_id in temp_data['station_id'].unique():
@@ -55,8 +58,16 @@ for zone_id in load_data['zone_id'].unique():
         positive_percentage = (len(positive_ratios) / total_count) * 100
         negative_percentage = (len(negative_ratios) / total_count) * 100
         
-        # Step 8: Display Results
-        print(f"Zone ID: {zone_id}, Station ID: {station_id}")
-        print(f"Positive Percentage: {positive_percentage:.2f}%")
-        print(f"Negative Percentage: {negative_percentage:.2f}%")
-        print("-" * 30)
+        # Add results to list
+        results.append({'Zone ID': zone_id,
+                        'Station ID': station_id,
+                        'Positive Percentage': positive_percentage,
+                        'Negative Percentage': negative_percentage})
+
+# Convert results to DataFrame
+results_df = pd.DataFrame(results)
+
+# Export results to CSV file
+results_df.to_csv("/Users/Kashyap/Documents/Files/Academics/Institutions/Masters(USA)/IIT/Spring 2024 Semester/ECE563 (AI for Smart Grid)/AI-in-Smart-Grid/Projects/Final Project/Code/results.csv", index=False)
+
+print("Results exported to results.csv")
