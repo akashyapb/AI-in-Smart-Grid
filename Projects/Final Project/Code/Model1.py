@@ -31,6 +31,37 @@ zone_to_station = combined_results.drop_duplicates(subset=['Zone ID'])[['Zone ID
 merged_data = pd.merge(load_data, zone_to_station, left_on='zone_id', right_on='Zone ID', how='inner')
 merged_data.drop(columns=['Zone ID'], inplace=True)  # Drop redundant column
 
+# Step 1: Check Merged Data
+print("Sample of merged_data:")
+print(merged_data.head())
+
+# Step 2: Compare with combined_results.csv
+print("\nMapping between zone_id and Best Station ID according to combined_results.csv:")
+print(zone_to_station.head())
+
+# Step 3: Sample Validation
+# Choose a few random samples from merged_data and cross-check with combined_results.csv
+# For example, select 5 random rows and validate the mapping
+sample_rows = merged_data.sample(n=5, random_state=42)
+print("\nSample Validation:")
+for index, row in sample_rows.iterrows():
+    # Check if 'station_id' is present in the row
+    if 'station_id' in row:
+        station_id = row['station_id']
+    else:
+        # Use the correct column name if it's different
+        station_id = row['Best Station ID']
+    
+    zone_id = row['zone_id']
+    # Ensure 'Zone ID' is used if 'zone_id' is not present in row
+    if 'zone_id' in row:
+        zone_id = row['zone_id']
+    else:
+        zone_id = row['Zone ID']
+        
+    best_station_id = zone_to_station[zone_to_station['Zone ID'] == zone_id]['Best Station ID'].values[0]
+    print(f"Zone ID: {zone_id}, Station ID: {station_id}, Best Station ID: {best_station_id}")
+
 # Step 5: Train-Test Split
 X = merged_data.drop(columns=['zone_id', 'year', 'month', 'day', 'Best Station ID'])
 y = merged_data.drop(columns=['year', 'month', 'day', 'Best Station ID', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8', 'h9', 'h10', 'h11', 'h12', 'h13', 'h14', 'h15', 'h16', 'h17', 'h18', 'h19', 'h20', 'h21', 'h22', 'h23', 'h24'])
