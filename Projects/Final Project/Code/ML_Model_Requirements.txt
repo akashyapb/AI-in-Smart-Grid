@@ -1,0 +1,8 @@
+I have the following requirement:
+1. I have two raw data files (Load_history_final.csv and Temp_history_final.csv). These files contain zone_id, year, month, day, h1, h2, h3...h24 in Load_history_final.csv as columns where h1, h2, h3...h24 is the hourly data per day. Similarly, the columns for Temp_history_final.csv are station_id, year, month, day, h1, h2, h3...h24 where h1, h2,h3...h24 are the hourly data per day.   These files are correlated based on their zone_id in Load_history_final.csv and station_id in Temp_history_final.csv. This correlation can be found in combined_results.csv where a unique Zone ID has a particular Best Station ID.
+2. I need you to use Logistic Regression to train the model using these two raw files (Load_history_final.csv and Temp_history_final.csv) based on the correlation file (combined_results.csv) mapping by shuffling the data at first and using train_test_split and also cross validation upon the data.  Added to this, Please isolate the test data from the training set. The model needs to predict Load values for every hour from h1 to h24 based on the learning from the correlated temperature data.
+3. Now, I want the results to have actual data from the test data alongside the predicted data and a measure of deviation and the overall deviation from predicted and actual results. This or any similar method, should tell me about the model's accuracy.
+
+Note: There are 0 values in the data in the raw files (Load_history_final.csv and Temp_history_final.csv). I need the ML model to ignore these 0 values while learning to avoid deviation from accuracy.
+
+Please ask me if you have any further questions 
