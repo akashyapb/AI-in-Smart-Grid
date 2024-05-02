@@ -79,6 +79,34 @@ overall_deviation = mean_squared_error(y_test, y_pred)
 print("Overall Deviation:", overall_deviation)
 print()
 
+# Step 8: Calculate Top 10 Prediction Errors
+# Calculate predictions for test data
+y_test_pred = model.predict(X_test)
+
+# Calculate relative percentage error
+relative_percentage_error = 100 * (y_test.values - y_test_pred) / y_test.values
+
+# Create DataFrame for prediction errors
+prediction_errors = pd.DataFrame({
+    'zone': X_test['zone_id'],
+    'year': X_test['year'],
+    'month': X_test['month'],
+    'day': X_test['day'],
+    'hour': np.arange(1, 25).repeat(len(X_test)),  # Repeat each hour for each row in X_test
+    'predicted_load': y_test_pred.flatten(),  # Flatten y_test_pred to match shape of y_test
+    'true_load': y_test.values.flatten(),
+    'relative_percentage_error': relative_percentage_error.flatten()
+})
+
+# Sort by magnitude of Relative Percentage Error in decreasing order
+top_10_errors = prediction_errors.copy()
+top_10_errors['relative_percentage_error'] = np.abs(prediction_errors['relative_percentage_error'])  # Take absolute values for sorting
+top_10_errors = top_10_errors.nlargest(10, 'relative_percentage_error')
+
+# Display top 10 errors
+print("\nTop 10 Prediction Errors:")
+print(top_10_errors[['zone', 'year', 'month', 'day', 'hour', 'predicted_load', 'true_load', 'relative_percentage_error']])
+
 #Measure the overall execution time
 end_time = time.perf_counter()
 execution_time = end_time - start_time
