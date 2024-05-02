@@ -61,13 +61,13 @@ print()
 
 # Step 5: Train-Test Split
 X = merged_data.drop(columns=['zone_id', 'year', 'month', 'day', 'Best Station ID'])
-y = merged_data.drop(columns=['year', 'month', 'day', 'Best Station ID', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8', 'h9', 'h10', 'h11', 'h12', 'h13', 'h14', 'h15', 'h16', 'h17', 'h18', 'h19', 'h20', 'h21', 'h22', 'h23', 'h24'])
+y = merged_data[['h1']]  # Select one of the hour columns for training
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Step 6: Model Training
 model = LogisticRegression()
-model.fit(X_train, y_train)
+model.fit(X_train, y_train.values.ravel())  # Convert y_train to 1D array using ravel()
 
 # Step 7: Model Evaluation
 cv_scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
@@ -78,34 +78,6 @@ y_pred = model.predict(X_test)
 overall_deviation = mean_squared_error(y_test, y_pred)
 print("Overall Deviation:", overall_deviation)
 print()
-
-# Step 8: Calculate Top 10 Prediction Errors
-# Calculate predictions for test data
-y_test_pred = model.predict(X_test)
-
-# Calculate relative percentage error
-relative_percentage_error = 100 * (y_test.values - y_test_pred) / y_test.values
-
-# Create DataFrame for prediction errors
-prediction_errors = pd.DataFrame({
-    'zone': X_test['zone_id'],
-    'year': X_test['year'],
-    'month': X_test['month'],
-    'day': X_test['day'],
-    'hour': np.arange(1, 25).repeat(len(X_test)),  # Repeat each hour for each row in X_test
-    'predicted_load': y_test_pred.flatten(),  # Flatten y_test_pred to match shape of y_test
-    'true_load': y_test.values.flatten(),
-    'relative_percentage_error': relative_percentage_error.flatten()
-})
-
-# Sort by magnitude of Relative Percentage Error in decreasing order
-top_10_errors = prediction_errors.copy()
-top_10_errors['relative_percentage_error'] = np.abs(prediction_errors['relative_percentage_error'])  # Take absolute values for sorting
-top_10_errors = top_10_errors.nlargest(10, 'relative_percentage_error')
-
-# Display top 10 errors
-print("\nTop 10 Prediction Errors:")
-print(top_10_errors[['zone', 'year', 'month', 'day', 'hour', 'predicted_load', 'true_load', 'relative_percentage_error']])
 
 #Measure the overall execution time
 end_time = time.perf_counter()
