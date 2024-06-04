@@ -35,7 +35,7 @@ zone_to_station = combined_results.drop_duplicates(subset=['Zone ID'])[['Zone ID
 merged_data = pd.merge(load_data, zone_to_station, left_on='zone_id', right_on='Zone ID', how='inner')
 merged_data.drop(columns=['Zone ID'], inplace=True)  # Drop redundant column
 
-# Step 3: Sample Validation
+# Step 5: Sample Validation
 # Choose a few random samples from merged_data and cross-check with combined_results.csv
 # For example, select 5 random rows and validate the mapping
 sample_rows = merged_data.sample(n=5, random_state=42)
@@ -59,17 +59,17 @@ for index, row in sample_rows.iterrows():
     print(f"Zone ID: {zone_id}, Station ID: {station_id}, Best Station ID: {best_station_id}")
 print()
 
-# Step 5: Train-Test Split
+# Step 6: Train-Test Split
 X = merged_data.drop(columns=['zone_id', 'year', 'month', 'day', 'Best Station ID'])
 y = merged_data[['h1']]  # Select one of the hour columns for training
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Step 6: Model Training
+# Step 7: Model Training
 model = LogisticRegression()
 model.fit(X_train, y_train.values.ravel())  # Convert y_train to 1D array using ravel()
 
-# Step 7: Model Evaluation
+# Step 8: Model Evaluation
 cv_scores = cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
 mean_cv_score = np.mean(cv_scores)
 print("Mean Cross-Validation Score:", mean_cv_score)
